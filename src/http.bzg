@@ -1,20 +1,25 @@
+// Include the BSL socket library (Installed via "bzg install socket")
 include("lib/socket.bzg");
 
+// 1. Initialize Socket
 if (socket_init() < 0) {
     print("Socket Initialization Failed\n");
 } else {
     print("Socket Ready\n");
 }
 
+// 2. Create Socket Server
 var server = socket_create();
 if (server < 0) {
     print("Socket Creation Failed\n");
 }
 
+// 3. Bind Server to Port 8080
 if (socket_bind(server, 0, 8080) < 0) {
     print("Socket Bind Failed.\n");
 }
 
+// 4. Listen for incoming connections
 if (socket_listen(server, 5) < 0) {
     print("socket_listen() Failed.\n");
 }
@@ -22,6 +27,7 @@ if (socket_listen(server, 5) < 0) {
 print("Server running on http://localhost:8080/\n");
 
 while (1) {
+    // 5. Accept Client Connection
     var client = socket_accept(server);
     
     if (client >= 0) {
@@ -34,8 +40,7 @@ while (1) {
             var BODY = "";
             var HTTP = "";
             
-            // Route Handling bypassing the missing indexOf function
-            // A request for /about starts with "GET /abou"
+            // Route Handling Logic
             if (data[4] == "/" && data[5] == "a" && data[6] == "b" && data[7] == "o") {
                 BODY = "<!DOCTYPE html><html><head><title>BSL Server - About</title></head>"
                      + "<body style='font-family:sans-serif;'>"
@@ -48,7 +53,6 @@ while (1) {
                      + "Content-Length: " + sizeof(BODY) + "\r\n"
                      + "Connection: close\r\n\r\n";
                      
-            // A request for the root home page starts with "GET / H" or "GET / "
             } else if (data[4] == "/" && (data[5] == " " || data[5] == "H")) {
                 BODY = "<!DOCTYPE html><html><head><title>BSL Server - Home</title></head>"
                      + "<body style='font-family:sans-serif;'>"
@@ -61,7 +65,6 @@ while (1) {
                      + "Content-Length: " + sizeof(BODY) + "\r\n"
                      + "Connection: close\r\n\r\n";
                      
-            // Any other route triggers the 404 response
             } else {
                 BODY = "<!DOCTYPE html><html><head><title>404 Not Found</title></head>"
                      + "<body style='font-family:sans-serif;'>"
@@ -81,4 +84,3 @@ while (1) {
         socket_close(client);
     }
 }
-localhost
